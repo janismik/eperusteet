@@ -16,6 +16,7 @@
 
 package fi.vm.sade.eperusteet.domain;
 
+import fi.vm.sade.eperusteet.dto.EntityReference;
 import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Cacheable;
@@ -38,7 +39,7 @@ import org.hibernate.annotations.Immutable;
 @Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
 @Immutable
 @Table(name = "arviointiasteikko")
-public class ArviointiAsteikko implements Serializable {
+public class ArviointiAsteikko implements Serializable, CachedEntity {
     private static final long serialVersionUID = 1L;
     
     @Id
@@ -66,10 +67,7 @@ public class ArviointiAsteikko implements Serializable {
     }
 
     @Override
-    public String toString() {
-        return ""+id;
+    public EntityReference<?> getReference() {
+        return new EntityReference<>(id, ArviointiAsteikko.class);
     }
-
-
-
 }

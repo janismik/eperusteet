@@ -14,20 +14,15 @@
  * European Union Public Licence for more details.
  */
 
-package fi.vm.sade.eperusteet.dto;
+package fi.vm.sade.eperusteet.domain;
 
-import fi.vm.sade.eperusteet.domain.Osaamistaso;
-import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
+import fi.vm.sade.eperusteet.dto.EntityReference;
 
 /**
  *
- * @author jhyoty
+ * @author teele1
  */
-@Getter
-@Setter
-public class OsaamistasonKriteeriDto {
-    private EntityReference<Osaamistaso> osaamistaso;
-    private List<LokalisoituTekstiDto> kriteerit;
+public interface CachedEntity {
+    
+    <E extends CachedEntity> EntityReference<E> getReference();
 }

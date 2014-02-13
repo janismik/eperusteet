@@ -16,18 +16,21 @@
 
 package fi.vm.sade.eperusteet.dto;
 
-import fi.vm.sade.eperusteet.domain.Osaamistaso;
-import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import java.io.IOException;
 
 /**
  *
- * @author jhyoty
+ * @author teele1
  */
-@Getter
-@Setter
-public class OsaamistasonKriteeriDto {
-    private EntityReference<Osaamistaso> osaamistaso;
-    private List<LokalisoituTekstiDto> kriteerit;
+public class EntityReferenceSerializer extends JsonSerializer<EntityReference>{
+
+    @Override
+    public void serialize(EntityReference value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
+        jgen.writeString(value.getEntityClass() + "_" + value.getId());
+    }
+    
 }

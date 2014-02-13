@@ -14,20 +14,19 @@
  * European Union Public Licence for more details.
  */
 
-package fi.vm.sade.eperusteet.dto;
+package fi.vm.sade.eperusteet.service;
 
-import fi.vm.sade.eperusteet.domain.Osaamistaso;
+import fi.vm.sade.eperusteet.dto.ArviointiDto;
 import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  *
- * @author jhyoty
+ * @author teele1
  */
-@Getter
-@Setter
-public class OsaamistasonKriteeriDto {
-    private EntityReference<Osaamistaso> osaamistaso;
-    private List<LokalisoituTekstiDto> kriteerit;
+public interface ArviointiService {
+    
+    List<ArviointiDto> findAll();
+    ArviointiDto findById(Long id);
+    ArviointiDto add(ArviointiDto arviointiDto);
+    
 }

@@ -14,20 +14,23 @@
  * European Union Public Licence for more details.
  */
 
-package fi.vm.sade.eperusteet.dto;
+package fi.vm.sade.eperusteet.resource.util;
 
-import fi.vm.sade.eperusteet.domain.Osaamistaso;
+import java.util.Arrays;
 import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  *
- * @author jhyoty
+ * @author teele1
  */
-@Getter
-@Setter
-public class OsaamistasonKriteeriDto {
-    private EntityReference<Osaamistaso> osaamistaso;
-    private List<LokalisoituTekstiDto> kriteerit;
+public class PerusteenOsaMappings {
+    public static final String TUTKINNON_OSA = "perusteen-osat-tutkinnon-osa";
+    public static final String TEKSTIKAPPALE = "perusteen-osat-tekstikappale";
+    
+    public static final String IS_TUTKINNON_OSA_PARAM = "tyyppi=" + TUTKINNON_OSA;
+    public static final String IS_TEKSTIKAPPALE_PARAM = "tyyppi=" + TEKSTIKAPPALE;
+    
+    public static final List<String> getPerusteenOsaTypes() {
+        return Arrays.asList(TUTKINNON_OSA, TEKSTIKAPPALE);
+    }
 }

@@ -16,18 +16,32 @@
 
 package fi.vm.sade.eperusteet.dto;
 
-import fi.vm.sade.eperusteet.domain.Osaamistaso;
-import java.util.List;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Getter;
-import lombok.Setter;
 
 /**
  *
- * @author jhyoty
+ * @author teele1
+ * @param <E>
  */
-@Getter
-@Setter
-public class OsaamistasonKriteeriDto {
-    private EntityReference<Osaamistaso> osaamistaso;
-    private List<LokalisoituTekstiDto> kriteerit;
+@JsonSerialize(using = EntityReferenceSerializer.class)
+@JsonDeserialize(using = EntityReferenceDeserializer.class)
+public class EntityReference<E> {
+    
+    @Getter
+    private final String id;
+    
+    @Getter
+    private final String entityClass;
+    
+    public EntityReference(Long id, Class<E> entityClass) {
+        this.id = id.toString();
+        this.entityClass = entityClass.getSimpleName().toLowerCase();
+    }
+    
+    public EntityReference(String id, String entityClass) {
+        this.id = id;
+        this.entityClass = entityClass;
+    }
 }

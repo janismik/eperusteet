@@ -22,16 +22,17 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
-import org.springframework.web.bind.annotation.RestController;
 
 /**
  *
  * @author jussini
  */
-@RestController
+@Controller
 @RequestMapping("/api/koulutusalat")
 public class KoulutusalaController {
         
@@ -39,12 +40,14 @@ public class KoulutusalaController {
     private KoulutusalaService service;
     
     @RequestMapping(method = GET)
+    @ResponseBody
     public List<KoulutusalaDto> getAll() {
         List<KoulutusalaDto> klist = service.getAll();
         return klist;       
     }
    
     @RequestMapping(value = "/{id}", method = GET)
+    @ResponseBody
     public ResponseEntity<KoulutusalaDto> get(@PathVariable("id") final Long id) {
         KoulutusalaDto k = service.get(id);
         if (k == null) {

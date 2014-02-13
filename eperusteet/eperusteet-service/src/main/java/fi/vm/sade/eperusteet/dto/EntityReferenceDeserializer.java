@@ -16,18 +16,24 @@
 
 package fi.vm.sade.eperusteet.dto;
 
-import fi.vm.sade.eperusteet.domain.Osaamistaso;
-import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import java.io.IOException;
 
 /**
  *
- * @author jhyoty
+ * @author teele1
  */
-@Getter
-@Setter
-public class OsaamistasonKriteeriDto {
-    private EntityReference<Osaamistaso> osaamistaso;
-    private List<LokalisoituTekstiDto> kriteerit;
+public class EntityReferenceDeserializer extends JsonDeserializer<EntityReference>{
+    
+    @Override
+    public EntityReference deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+        
+        String[] fields = jp.getText().split("_");
+        
+        return new EntityReference(fields[1], fields[0]);
+    }
+    
 }

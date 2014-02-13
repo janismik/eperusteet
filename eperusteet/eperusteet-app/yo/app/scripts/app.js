@@ -5,6 +5,7 @@ angular.module('eperusteApp', [
     'ngRoute',
     'ngSanitize',
     'ngResource',
+    'ngAnimate',
     'pascalprecht.translate',
     'ui.bootstrap',
   ])

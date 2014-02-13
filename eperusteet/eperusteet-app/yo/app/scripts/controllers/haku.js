@@ -6,11 +6,12 @@ angular.module('eperusteApp')
     $routeProvider
       .when('/selaus/:konteksti', {
         templateUrl: 'views/haku.html',
-        controller: 'HakuCtrl'
+        controller: 'HakuCtrl',
+        navigaationimi: 'Hakuehdot'
       });
   })
-  .controller('HakuCtrl', function($scope, $window, $routeParams, $location, Perusteet,
-    Haku, YleinenData, Koulutusalat) {
+  .controller('HakuCtrl', function($scope, $rootScope, $window, $routeParams, $location,
+    Perusteet, Haku, YleinenData, Koulutusalat) {
 
     var pat = '';
     // Viive, joka odotetaan, ennen kuin haku nimi muutoksesta lähtee serverille.
@@ -20,22 +21,25 @@ angular.module('eperusteApp')
     $scope.sivuja = 1;
     $scope.kokonaismaara = 0;
     $scope.query = Haku.hakuParametrit.nimi;
-    $scope.koulutusala = Haku.hakuParametrit.ala;
+    $scope.koulutusala = Haku.hakuParametrit.koulutusala;
     $scope.tutkintotyyppi = Haku.hakuParametrit.tyyppi;
+    $scope.siirtymaAjalla = Haku.hakuParametrit.siirtyma;
+    $scope.valittuOpintoala = Haku.hakuParametrit.opintoala;
     $scope.kontekstit = YleinenData.kontekstit;
     $scope.kieli = YleinenData.kieli;
+    
 
     $scope.koulutusalat = [];
     Koulutusalat.query(
       function(vastaus) {
         $scope.koulutusalat = vastaus;
+        // Jotta valittu opintoala säilyisi sivulle palatessa otetaan se talteen
+        // ennen kuin kutsutaan koulutusalaMuuttui metodia.
+        var opintoalaTemp = $scope.valittuOpintoala;
         $scope.koulutusalaMuuttui();
+        $scope.valittuOpintoala = opintoalaTemp;
       }
     );
-
-
-    $scope.valittuOpintoala = Haku.hakuParametrit.opintoala;
-
 
     $scope.tutkintotyypit = {
       1: 'tutkintotyyppikoodi-1',
@@ -57,6 +61,7 @@ angular.module('eperusteApp')
     if ($routeParams.konteksti && $scope.kontekstit.indexOf($routeParams.konteksti.toLowerCase()) !== -1) {
       $scope.konteksti = $routeParams.konteksti;
       alustaKonteksti();
+      $rootScope.$broadcast('paivitaNavigaatiopolku');
     } else {
       $location.path('/selaus/ammatillinenperuskoulutus');
     }
@@ -82,7 +87,7 @@ angular.module('eperusteApp')
       Haku.hakuParametrit = {
         sivu: sivu,
         nimi: $scope.query,
-        ala: $scope.koulutusala,
+        koulutusala: $scope.koulutusala,
         opintoala: $scope.valittuOpintoala,
         sivukoko: $scope.sivukoko,
         tyyppi: $scope.tutkintotyyppi,
