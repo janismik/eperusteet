@@ -62,10 +62,11 @@ angular.module('eperusteApp', [
     $httpProvider.interceptors.push(['$rootScope', '$q', function($rootScope, $q) {
       return {
         'response': function(response) {
-          var uudelleenohjausStatuskoodit = [401, 403, 500];
+          // var uudelleenohjausStatuskoodit = [401, 403, 412, 500];
+          var uudelleenohjausStatuskoodit = [412, 500];
           if (_.indexOf(uudelleenohjausStatuskoodit, response.status) !== -1) {
             // TODO: ota käyttöön poistamalla kommentista
-            // $rootScope.$emit('event:uudelleenohjattava', response.status);
+            $rootScope.$emit('event:uudelleenohjattava', response.status);
           }
           return response || $q.when(response);
         },
@@ -75,7 +76,7 @@ angular.module('eperusteApp', [
       };
     }]);
   })
-  .run(function($rootScope, $modal, $location) {
+  .run(function($rootScope, $modal, $location, $window) {
     var onAvattuna = false;
 
     $rootScope.$on('event:uudelleenohjattava', function(event, status) {
@@ -84,11 +85,32 @@ angular.module('eperusteApp', [
       }
       onAvattuna = true;
 
+      function getCasURL() {
+        var host = $location.host();
+        var port = $location.port();
+        var protocol = $location.protocol();
+        var cas = '/cas/login';
+        var redirectURL = encodeURIComponent($location.absUrl());
+
+        var url = protocol + '://' + host;
+
+        if (port !== 443 && port !== 80) {
+          url += ':' + port;
+        }
+
+        url += cas + '?service=' + redirectURL;
+
+        return url;
+      }
+
+      var casurl = getCasURL();
+
       var uudelleenohjausModaali = $modal.open({
         templateUrl: 'views/modals/uudelleenohjaus.html',
         controller: 'UudelleenohjausModalCtrl',
         resolve: {
-          status: function() { return status; }
+          status: function() { return status; },
+          redirect: function() { return casurl; }
         }
       });
 
@@ -96,8 +118,13 @@ angular.module('eperusteApp', [
       }, function() {
       }).finally(function() {
         onAvattuna = false;
-        if (status === 500) {
+        switch (status) {
+        case 500:
           $location.path('/');
+          break;
+        case 412:
+          $window.location.href = casurl;
+          break;
         }
       });
     });

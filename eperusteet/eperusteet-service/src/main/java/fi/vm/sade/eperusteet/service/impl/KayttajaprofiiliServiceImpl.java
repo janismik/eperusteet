@@ -23,6 +23,7 @@ import fi.vm.sade.eperusteet.repository.PerusteRepository;
 import fi.vm.sade.eperusteet.service.KayttajaprofiiliService;
 import fi.vm.sade.eperusteet.service.mapping.Dto;
 import fi.vm.sade.eperusteet.service.mapping.DtoMapper;
+import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,21 +55,32 @@ public class KayttajaprofiiliServiceImpl implements KayttajaprofiiliService {
     @Override
     @Transactional(readOnly = true)
     @PreAuthorize("isAuthenticated()")
-    public KayttajaProfiiliDto get(final Long id) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        LOG.info(auth.getName());
-        return mapper.map(kayttajaprofiiliRepo.findOneEager(id), KayttajaProfiiliDto.class);
+    public KayttajaProfiiliDto get() {
+        LOG.info("Kayttajaprofiili get()");
+        
+        String oid = SecurityContextHolder.getContext().getAuthentication().getName();
+                      
+        return mapper.map(kayttajaprofiiliRepo.findOneEager(oid), KayttajaProfiiliDto.class);
     }
 
     @Override
     @Transactional
     @PreAuthorize("isAuthenticated()")
-    public KayttajaProfiiliDto addSuosikki(final Long id, final Long perusteId) {     
+    public KayttajaProfiiliDto addSuosikki(final Long perusteId) {     
         LOG.info("addSuosikki " + perusteId);
 
-        Kayttajaprofiili kayttajaprofiili = kayttajaprofiiliRepo.findOneEager(id);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String oid = auth.getName();
+        Kayttajaprofiili kayttajaprofiili = kayttajaprofiiliRepo.findOneEager(oid);
         Peruste peruste = perusteRepo.findOne(perusteId);
 
+        if (kayttajaprofiili == null) {
+            kayttajaprofiili = new Kayttajaprofiili();
+            kayttajaprofiili.setOid(oid);
+            kayttajaprofiili.setSuosikit(new ArrayList<Peruste>());
+            kayttajaprofiiliRepo.save(kayttajaprofiili);
+        }
+        
         if (!kayttajaprofiili.getSuosikit().contains(peruste)) {
             kayttajaprofiili.getSuosikit().add(peruste);
         }
@@ -79,16 +91,16 @@ public class KayttajaprofiiliServiceImpl implements KayttajaprofiiliService {
     @Override
     @Transactional
     @PreAuthorize("isAuthenticated()")
-    public KayttajaProfiiliDto deleteSuosikki(Long id, Long perusteId) throws IllegalArgumentException {
+    public KayttajaProfiiliDto deleteSuosikki(Long perusteId) throws IllegalArgumentException {
         LOG.info("deleteSuosikki " + perusteId);
 
-        Kayttajaprofiili kayttajaprofiili = kayttajaprofiiliRepo.findOneEager(id);
-        if (kayttajaprofiili == null) {
-            throw new IllegalArgumentException("Käyttäjäprofilia ei ole olemassa.");
+        String oid = SecurityContextHolder.getContext().getAuthentication().getName();
+        Kayttajaprofiili kayttajaprofiili = kayttajaprofiiliRepo.findOneEager(oid);
+        
+        if (kayttajaprofiili != null) { 
+            Peruste peruste = perusteRepo.findOne(perusteId);
+            kayttajaprofiili.getSuosikit().remove(peruste);
         }
-        Peruste peruste = perusteRepo.findOne(perusteId);
-
-        kayttajaprofiili.getSuosikit().remove(peruste);
 
         return mapper.map(kayttajaprofiili, KayttajaProfiiliDto.class);
     }
