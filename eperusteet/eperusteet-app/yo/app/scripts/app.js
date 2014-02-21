@@ -126,6 +126,6 @@ angular.module('eperusteApp', [
           $window.location.href = casurl;
           break;
         }
-      });
+      }); 
     });
   });
