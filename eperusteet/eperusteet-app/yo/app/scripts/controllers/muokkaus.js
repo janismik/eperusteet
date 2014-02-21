@@ -58,7 +58,7 @@ muokkausUtils = {
     scope.arvioinnit = [];
     
     angular.forEach(scope.kaikkiArvioinnit, function(arviointi) {
-      if(scope.tutkinnonOsa.arviointi == null || arviointi.id !== scope.tutkinnonOsa.arviointi.id) {
+      if(scope.tutkinnonOsa.arviointi === null || arviointi.id !== scope.tutkinnonOsa.arviointi.id) {
         scope.arvioinnit.push(arviointi);
       }
     });
