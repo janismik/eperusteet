@@ -27,31 +27,6 @@ angular.module('eperusteApp')
     $scope.haeRakenne = haeRakenne;
     haeRakenne();
 
-    function tallennaTutkinnonosat(rakenne) {
-      TreeCache.tallenna(rakenne, $stateParams.perusteenId);
-      PerusteenRakenne.tallennaTutkinnonosat(
-        rakenne,
-        rakenne.$peruste.id,
-        $scope.suoritustapa,
-        function() { Notifikaatiot.onnistui(); },
-        Notifikaatiot.serverCb
-      );
-    }
-
-    Editointikontrollit.registerCallback({
-      edit: function() {
-        $scope.editoi = true;
-      },
-      save: function() {
-        tallennaTutkinnonosat($scope.rakenne);
-        $scope.editoi = false;
-      },
-      cancel: function() {
-        haeRakenne();
-        $scope.editoi = false;
-      }
-    });
-
     $scope.rajaaTutkinnonOsia = function(haku) {
       return Kaanna.kaanna(haku.nimi).toLowerCase().indexOf($scope.tosarajaus.toLowerCase()) !== -1;
     };

@@ -14,6 +14,7 @@
 * European Union Public Licence for more details.
 */
 'use strict';
+/* global _ */
 
 angular.module('eperusteApp')
   .config(function($stateProvider) {
@@ -23,12 +24,27 @@ angular.module('eperusteApp')
         templateUrl: 'views/perusteprojekti.html',
         controller: 'PerusteprojektiCtrl',
         resolve: {'koulutusalaService': 'Koulutusalat',
-                  'opintoalaService': 'Opintoalat'},
+                  'opintoalaService': 'Opintoalat',
+                  'perusteprojektiTiedot': 'PerusteprojektiTiedotService',
+                  'perusteprojektiAlustus': function(perusteprojektiTiedot, $stateParams) {
+                    return perusteprojektiTiedot.alustaProjektinTiedot($stateParams);
+                  }
+                },
         abstract: true
       })
       .state('perusteprojekti.suoritustapa', {
         url: '/:suoritustapa',
         template: '<div ui-view></div>',
+        navigaationimi: 'navi-perusteprojekti',
+        resolve: {
+          perusteprojektiTiedot: 'PerusteprojektiTiedotService',
+          projektinTiedotAlustettu: function(perusteprojektiTiedot) {
+            return perusteprojektiTiedot.projektinTiedotAlustettu();
+          },
+          perusteenSisaltoAlustus: function(perusteprojektiTiedot, projektinTiedotAlustettu, $stateParams) {
+            return perusteprojektiTiedot.alustaPerusteenSisalto($stateParams);
+          }
+        },
         abstract: true
       })
       .state('perusteprojekti.suoritustapa.muodostumissaannot', {
@@ -90,52 +106,36 @@ angular.module('eperusteApp')
       .state('perusteprojektiwizard', {
         url: '/perusteprojekti',
         templateUrl: 'views/partials/perusteprojekti/perusteprojektiTiedotUusi.html',
-        controller: 'ProjektinTiedotCtrl',
         abstract: true
       })
       .state('perusteprojektiwizard.tiedot', {
         url: '/perustiedot',
         templateUrl: 'views/partials/perusteprojekti/perusteprojektiTiedot.html',
         controller: 'ProjektinTiedotCtrl',
+        resolve: {'perusteprojektiTiedot': 'PerusteprojektiTiedotService'},
         onEnter: ['SivunavigaatioService', function(SivunavigaatioService) {
             SivunavigaatioService.aseta({osiot: false});
           }]
       });
   })
-  .controller('PerusteprojektiCtrl', function ($scope, $stateParams, Navigaatiopolku,
-    PerusteprojektiResource, koulutusalaService, opintoalaService, Perusteet, SivunavigaatioService,
-    PerusteProjektiService, Kaanna) {
+  .controller('PerusteprojektiCtrl', function ($scope, $state, Navigaatiopolku,
+    koulutusalaService, opintoalaService, SivunavigaatioService, PerusteProjektiService,
+    Kaanna, perusteprojektiTiedot) {
 
-    PerusteProjektiService.cleanSuoritustapa();
-    $scope.projekti = {};
-    $scope.peruste = {};
-
+    //PerusteProjektiService.cleanSuoritustapa();
+    $scope.projekti = perusteprojektiTiedot.getProjekti();
+    $scope.peruste = perusteprojektiTiedot.getPeruste();
     $scope.Koulutusalat = koulutusalaService;
     $scope.Opintoalat = opintoalaService;
 
-    PerusteProjektiService.setSuoritustapa($stateParams.suoritustapa);
-
-    $scope.projekti.id = $stateParams.perusteProjektiId;
-    PerusteprojektiResource.get({id: $stateParams.perusteProjektiId}, function(vastaus) {
-      $scope.projekti = vastaus;
-      // TODO: väliaikaisesti hardkoodattu tila
-      $scope.projekti.tila = 'luonnos';
-      SivunavigaatioService.asetaProjekti($scope.projekti);
-      Navigaatiopolku.asetaElementit({
+    $scope.projekti.tila = 'luonnos';
+    SivunavigaatioService.asetaProjekti(_.clone($scope.projekti));
+    Navigaatiopolku.asetaElementit({
         perusteprojekti: {
-          nimi: vastaus.nimi,
+          nimi: $scope.projekti.nimi,
           url: 'perusteprojekti.suoritustapa.sisalto'
         }
       });
-      Perusteet.get({perusteenId: vastaus._peruste}, function(vastaus) {
-        $scope.peruste = vastaus;
-      }, function(virhe) {
-        console.log('perusteen haku virhe', virhe);
-      });
-
-    }, function(virhe) {
-      console.log('virhe', virhe);
-    });
 
     $scope.koulutusalaNimi = function(koodi) {
       return koulutusalaService.haeKoulutusalaNimi(koodi);
