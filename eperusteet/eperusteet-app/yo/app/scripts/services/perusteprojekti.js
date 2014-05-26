@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2013 The Finnish Board of Education - Opetushallitus
+ *
+ * This program is free software: Licensed under the EUPL, Version 1.1 or - as
+ * soon as they will be approved by the European Commission - subsequent versions
+ * of the EUPL (the "Licence");
+ *
+ * You may not use this work except in compliance with the Licence.
+ * You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * European Union Public Licence for more details.
+ */
+
 'use strict';
 /*global _*/
 
@@ -89,21 +105,21 @@ angular.module('eperusteApp')
     this.getProjekti = function () {
       return projekti;
     };
-    
+
     this.getPeruste = function () {
       return peruste;
     };
-    
+
     this.getSisalto = function () {
       return sisalto;
     };
-    
+
     this.cleanData = function () {
       projekti = {};
       peruste = {};
       sisalto = {};
     };
-    
+
     this.haeSisalto = function(perusteenId, suoritustapa) {
       var deferred = $q.defer();
       Suoritustapa.get({perusteenId: perusteenId, suoritustapa: suoritustapa}, function(vastaus) {
@@ -114,15 +130,15 @@ angular.module('eperusteApp')
       });
       return deferred.promise;
     };
-    
+
     this.projektinTiedotAlustettu = function () {
       return projektinTiedotDeferred.promise;
     };
-    
-    
+
+
     this.alustaProjektinTiedot = function (stateParams) {
       projektinTiedotDeferred = $q.defer();
-      
+
       PerusteprojektiResource.get({id: stateParams.perusteProjektiId}, function(projektiVastaus) {
         projekti = projektiVastaus;
         Perusteet.get({perusteenId: projekti._peruste}, function (perusteVastaus) {
@@ -131,7 +147,7 @@ angular.module('eperusteApp')
             peruste.suoritustavat = _.sortBy(peruste.suoritustavat, 'suoritustapakoodi');
           }
           projektinTiedotDeferred.resolve();
-          
+
         }, function(virhe) {
           projektinTiedotDeferred.reject();
           console.log('Virhe perusteen tietojen alustuksessa', virhe);
@@ -140,9 +156,9 @@ angular.module('eperusteApp')
         projektinTiedotDeferred.reject();
         console.log('Virhe projektin tietojen alustuksessa', virhe);
       });
-      
+
       return projektinTiedotDeferred.promise;
-      
+
     };
 
     this.alustaPerusteenSisalto = function (stateParams) {
@@ -169,7 +185,7 @@ angular.module('eperusteApp')
       }
       return perusteenSisaltoDeferred.promise;
     };
-  
+
     deferred.resolve(this);
     return deferred.promise;
     });
