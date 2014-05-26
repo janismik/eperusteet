@@ -24,7 +24,7 @@ angular.module('eperusteApp')
       scope: {
         tekstikappale: '='
       },
-      controller: function($scope, $state, $q, $modal, Editointikontrollit, PerusteenOsat, Notifikaatiot) {
+      controller: function($scope, $state, $q, $modal, Editointikontrollit, PerusteenOsat, Notifikaatiot, Lukitus) {
 
         $scope.fields =
           new Array({
@@ -46,8 +46,12 @@ angular.module('eperusteApp')
 
         function setupTekstikappale(kappale) {
           $scope.editableTekstikappale = angular.copy(kappale);
+          $scope.tekstikappaleenMuokkausOtsikko = $scope.editableTekstikappale.id ? 'muokkaus-tekstikappale' : 'luonti-tekstikappale';
 
-          $scope.tekstikappaleenMuokkausOtsikko = $scope.editableTekstikappale.id ? "muokkaus-tekstikappale" : "luonti-tekstikappale";
+          function successCb(res) {
+            Lukitus.vapauta(res.id);
+            Notifikaatiot.onnistui('muokkaus-tutkinnon-osa-tallennettu');
+          }
 
           Editointikontrollit.registerCallback({
             edit: function() {
@@ -55,9 +59,9 @@ angular.module('eperusteApp')
             save: function() {
               //TODO: Validate tutkinnon osa
               if ($scope.editableTekstikappale.id) {
-                $scope.editableTekstikappale.$saveTekstikappale(openNotificationDialog, Notifikaatiot.serverCb);
+                $scope.editableTekstikappale.$saveTekstikappale(successCb, Notifikaatiot.serverCb);
               } else {
-                PerusteenOsat.saveTekstikappale($scope.editableTekstikappale, openNotificationDialog(), Notifikaatiot.serverCb);
+                PerusteenOsat.saveTekstikappale($scope.editableTekstikappale, successCb, Notifikaatiot.serverCb);
               }
               $scope.tekstikappale = angular.copy($scope.editableTekstikappale);
             },
@@ -65,14 +69,10 @@ angular.module('eperusteApp')
               $scope.editableTekstikappale = angular.copy($scope.tekstikappale);
               var tekstikappaleDefer = $q.defer();
               $scope.tekstikappalePromise = tekstikappaleDefer.promise;
-
               tekstikappaleDefer.resolve($scope.editableTekstikappale);
+              Lukitus.vapauta($scope.tekstikappale.id);
             }
           });
-        }
-
-        function openNotificationDialog() {
-          Notifikaatiot.onnistui('tallennettu', 'muokkaus-tutkinnon-osa-tallennettu');
         }
 
         if ($scope.tekstikappale) {
@@ -89,7 +89,9 @@ angular.module('eperusteApp')
         }
 
         $scope.muokkaa = function () {
-          Editointikontrollit.startEditing();
+          Lukitus.lukitse($scope.tekstikappale.id, function() {
+            Editointikontrollit.startEditing();
+          });
         };
       }
     };
