@@ -107,7 +107,7 @@ angular.module('eperusteApp')
 
         function setupTutkinnonOsa(osa) {
           function successCb(res) {
-            Lukitus.vapauta(res.id);
+            Lukitus.vapautaPerusteenosa(res.id);
             Notifikaatiot.onnistui('muokkaus-tutkinnon-osa-tallennettu');
             $state.go('perusteprojekti.suoritustapa.tutkinnonosat');
           }
@@ -163,7 +163,7 @@ angular.module('eperusteApp')
               var tutkinnonOsaDefer = $q.defer();
               $scope.tutkinnonOsaPromise = tutkinnonOsaDefer.promise;
               tutkinnonOsaDefer.resolve($scope.editableTutkinnonOsa);
-              Lukitus.vapauta($scope.tutkinnonOsa.id);
+              Lukitus.vapautaPerusteenosa($scope.tutkinnonOsa.id);
             },
             notify: function (mode) {
               $scope.editEnabled = mode;
@@ -212,7 +212,7 @@ angular.module('eperusteApp')
         };
 
         $scope.muokkaa = function () {
-          Lukitus.lukitse($scope.tutkinnonOsa.id, function() {
+          Lukitus.lukitsePerusteenosa($scope.tutkinnonOsa.id, function() {
             Editointikontrollit.startEditing();
           });
         };

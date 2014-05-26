@@ -46,7 +46,7 @@ angular.module('eperusteApp')
 
         function setupTekstikappale(kappale) {
           function successCb(res) {
-            Lukitus.vapauta(res.id);
+            Lukitus.vapautaPerusteenosa(res.id);
             Notifikaatiot.onnistui('muokkaus-tekstikappale-tallennettu');
           }
 
@@ -70,7 +70,7 @@ angular.module('eperusteApp')
               var tekstikappaleDefer = $q.defer();
               $scope.tekstikappalePromise = tekstikappaleDefer.promise;
               tekstikappaleDefer.resolve($scope.editableTekstikappale);
-              Lukitus.vapauta($scope.tekstikappale.id);
+              Lukitus.vapautaPerusteenosa($scope.tekstikappale.id);
             }
           });
         }
@@ -89,7 +89,7 @@ angular.module('eperusteApp')
         }
 
         $scope.muokkaa = function () {
-          Lukitus.lukitse($scope.tekstikappale.id, function() {
+          Lukitus.lukitsePerusteenosa($scope.tekstikappale.id, function() {
             Editointikontrollit.startEditing();
           });
         };
