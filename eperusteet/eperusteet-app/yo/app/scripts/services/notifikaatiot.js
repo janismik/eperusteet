@@ -33,7 +33,7 @@ angular.module('eperusteApp')
     }
 
     function fataali(viesti, cb) {
-      cb = cb || function(){};
+      cb = _.isFunction(cb) ? cb : angular.noop;
       $modal.open({
         templateUrl: 'views/modals/jarjestelmavirhe.html',
         controller: 'JarjestelmaVirheModalCtrl',
