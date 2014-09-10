@@ -15,7 +15,7 @@
  */
 
 'use strict';
-/* global _, $ */
+/* global _ */
 
 angular.module('eperusteApp')
   .controller('PerusteprojektisisaltoCtrl', function($scope, $state, $stateParams,
