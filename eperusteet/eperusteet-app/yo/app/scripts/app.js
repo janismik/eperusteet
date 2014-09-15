@@ -52,10 +52,11 @@ angular.module('eperusteApp', [
   .config(function($translateProvider, $urlRouterProvider) {
     var preferred = 'fi';
     $urlRouterProvider.when('/', '/' + preferred);
-    $translateProvider.useStaticFilesLoader({
+    /*$translateProvider.useStaticFilesLoader({
       prefix: 'localisation/locale-',
       suffix: '.json'
-    });
+    });*/
+    $translateProvider.useLoader('LokalisointiLoader');
     $translateProvider.preferredLanguage(preferred);
     moment.lang(preferred);
   })

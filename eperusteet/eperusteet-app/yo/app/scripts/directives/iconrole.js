@@ -21,21 +21,32 @@ angular.module('eperusteApp')
   /**
    * Prepends a glyphicon to the element, see mapping in IconMapping.
    */
-  .directive('iconRole', function (IconMapping) {
+  .directive('iconRole', function (IconMapping, $compile) {
     return {
       restrict: 'A',
-      link: function (scope, element, attrs) {
-        var suffix = IconMapping.icons[attrs.iconRole] || attrs.iconRole;
-        var iconEl = angular.element('<span>')
-          .addClass('glyphicon').addClass('glyphicon-' + suffix);
-        if (element.text()) {
-          element.addClass('iconlink');
-        }
-        element.prepend(iconEl);
+      compile: function(tElement, tAttrs) {
+        return function postLink(scope, element, attrs) {
+          if (attrs.kaanna) {
+            return;
+          }
+          IconMapping.addIcon(attrs.iconRole, element);
+        };
       }
     };
   })
   .service('IconMapping', function () {
+    this.addIcon = function (key, el, indent) {
+      var iconEl = this.getIconEl(key);
+      if (el.text()) {
+        el.addClass('iconlink');
+      }
+      el.prepend(iconEl);
+    };
+    this.getIconEl = function (key) {
+      var suffix = this.icons[key] || key;
+      return angular.element('<span>')
+            .addClass('glyphicon').addClass('glyphicon-' + suffix);
+    };
     this.icons = {
       add: 'plus',
       back: 'chevron-left',

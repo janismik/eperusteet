@@ -17,8 +17,8 @@
         <div ng-if="ryhma.rooli === 'määritelty' && luonti">
             <h3  kaanna>osaamisala</h3>
             <div class="col-sm-offset-3" >
-                <button icon-role="add" class="btn btn-default" type="button" ng-click="avaaKoodistoModaali()">{{ "hae-koodistosta" | kaanna }}</button>
-                <button icon-role="remove" class="btn btn-default" type="button" ng-click="tyhjennaOsaamisala()">tyhjenna</button>
+                <button icon-role="add" class="btn btn-default" type="button" ng-click="avaaKoodistoModaali()" kaanna="hae-koodistosta"></button>
+                <button icon-role="remove" class="btn btn-default" type="button" ng-click="tyhjennaOsaamisala()" kaanna="tyhjenna"></button>
             </div>
             <formfield model="osaamisala" model-var="nimi" label="nimi" type="label" placeholder="hae-osaamisala"></formfield>
             <formfield model="osaamisala" model-var="osaamisalakoodiArvo" label="koodi" type="label" placeholder="hae-osaamisala"></formfield>
@@ -40,7 +40,7 @@
 
 <div class="modal-footer">
     <div class="pull-left" ng-if="!luonti">
-        <button class="btn btn-danger" ng-click="poista()" icon-role="remove" kaanna>poista</button>
+        <button class="btn btn-danger" ng-click="poista()" icon-role="remove" kaanna="poista"></button>
     </div>
     <button class="btn btn-danger" ng-click="peruuta()" kaanna>peru</button>
     <button class="btn btn-primary" ng-disabled="ryhmaForm.$invalid" ng-click="ok(ryhma)" kaanna>tallenna</button>

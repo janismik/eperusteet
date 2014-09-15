@@ -91,7 +91,7 @@ European Union Public Licence for more details.
               </div>
             </div>
             <button type="button" class="btn btn-default btn-xs" ng-show="!uudenKohteenTiedot.showInputArea"
-              ng-click="kohde.uusiWizard()" icon-role="add" kaanna>arviointi-uusi-kohde</button>
+              ng-click="kohde.uusiWizard()" icon-role="add" kaanna="arviointi-uusi-kohde"></button>
           </div>
         </div>
 
@@ -109,7 +109,7 @@ European Union Public Licence for more details.
             <button class="btn btn-primary btn-xs" ng-disabled="!$parent.uudenKohdealueenNimi" ng-click="$parent.kohdealue.uusi()" kaanna>lisää</button>
           </div>
           <button type="button" class="btn btn-default btn-xs" ng-show="!$parent.showNewKohdealueInput"
-            ng-click="$parent.showNewKohdealueInput = true" icon-role="add">{{'arviointi-uusi-kohdealue' | kaanna}}</button>
+            ng-click="$parent.showNewKohdealueInput = true" icon-role="add" kaanna="arviointi-uusi-kohdealue"></button>
         </div>
       </div>
 
