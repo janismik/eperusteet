@@ -24,11 +24,11 @@ angular.module('eperusteApp')
       restrict: 'A',
       transclude: true,
       scope: {
-        localeKey: '@otsikko',
+        localeKey: '=otsikko',
         piilotaOtsikko: '@?'
       },
       link: function(scope, element, attrs) {
-        scope.otsikko = 'muokkaus-' + scope.localeKey + '-header';
+        scope.otsikko = _.isString(scope.localeKey) ? ('muokkaus-' + scope.localeKey + '-header') : scope.localeKey;
         element.addClass('list-group-item ');
         element.attr('ng-class', '');
 
@@ -184,8 +184,11 @@ angular.module('eperusteApp')
       link: function (scope, element) {
         scope.$watch('$parent.editEnabled', function () {
           var button = element.find('button.poista-osio');
-          var header = angular.element('li[otsikko='+scope.$parent.field.localeKey+'] .osio-otsikko');
-          button.detach().appendTo(header);
+          // TODO parempi metodi kuin stringillä matchaus
+          if (_.isString(scope.$parent.field.localeKey)) {
+            var header = angular.element('li[otsikko='+scope.$parent.field.localeKey+'] .osio-otsikko');
+            button.detach().appendTo(header);
+          }
         });
       }
     };
