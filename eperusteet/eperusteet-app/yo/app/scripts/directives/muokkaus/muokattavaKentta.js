@@ -87,6 +87,14 @@ angular.module('eperusteApp')
           }
         };
 
+        scope.editOsio = function ($event) {
+          if ($event) {
+            $event.preventDefault();
+            $event.stopPropagation();
+          }
+          scope.field.$editing = true;
+        };
+
         $q.all({object: scope.objectReady, editMode: Editointikontrollit.getEditModePromise()}).then(function(values) {
           scope.object = values.object;
           scope.editMode = values.editMode;
@@ -96,7 +104,7 @@ angular.module('eperusteApp')
             .attr('osion-nimi', scope.field.header)
             .append(getElementContent(typeParams[0]));
 
-            contentFrame.attr('sulje-osio', 'suljeOsio()');
+            contentFrame.attr('sulje-osio', 'suljeOsio()').attr('edit-osio', 'editOsio()');
 
             populateElementContent(contentFrame);
           } else {
@@ -128,7 +136,7 @@ angular.module('eperusteApp')
             .addClass('list-group-item-text')
             .attr('ng-model', 'object.' + scope.field.path)
             .attr('ckeditor', '')
-            .attr('editing-enabled', '{{editMode}}');
+            .attr('editing-enabled', '{{editMode && ((field.$editing && field.isolateEdit) || !field.isolateEdit)}}');
             if (_.isString(scope.field.localeKey)) {
               element.attr('editor-placeholder', 'muokkaus-' + scope.field.localeKey + '-placeholder');
             }
@@ -178,23 +186,25 @@ angular.module('eperusteApp')
     return {
       template:
         '<div ng-transclude></div>' +
+        '<div class="field-buttons pull-right">' +
+        '<button icon-role="edit" ng-if="$parent.editEnabled && $parent.field.isolateEdit" editointi-kontrolli type="button"' +
+        ' class="btn btn-default btn-xs" ng-click="editOsio($event)" kaanna="\'muokkaa\'"></button>' +
         '<button icon-role="remove" ng-if="$parent.editEnabled" editointi-kontrolli type="button"' +
-        ' class="pull-right poista-osio btn btn-default btn-xs" ng-click="suljeOsio($event)">' +
-        '{{ \'poista-osio\' | kaanna }}</button>',
+        ' class="btn btn-default btn-xs" ng-click="suljeOsio($event)">' +
+        '{{ \'poista-osio\' | kaanna }}</button>' +
+        '</div>',
       restrict: 'E',
       transclude: true,
       scope: {
         osionNimi: '@',
-        suljeOsio: '&'
+        suljeOsio: '&',
+        editOsio: '&'
       },
       link: function (scope, element) {
         scope.$watch('$parent.editEnabled', function () {
-          var button = element.find('button.poista-osio');
-          // TODO parempi metodi kuin stringillä matchaus
-          if (_.isString(scope.$parent.field.localeKey)) {
-            var header = angular.element('li[otsikko='+scope.$parent.field.localeKey+'] .osio-otsikko');
-            button.detach().appendTo(header);
-          }
+          var buttons = element.find('.field-buttons');
+          var header = element.closest('li.kentta').find('.osio-otsikko');
+          buttons.detach().appendTo(header);
         });
       }
     };
