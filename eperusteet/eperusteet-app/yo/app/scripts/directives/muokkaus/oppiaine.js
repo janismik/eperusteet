@@ -23,6 +23,48 @@ angular.module('eperusteApp')
     this.changeInited = false;
   })
 
+  .service('OppimaaraHelper', function (PerusopetusService) {
+    var instance = null;
+    var params = {};
+    function OppimaaraHelperImpl(oppiaine) {
+      this.oppiaine = oppiaine;
+    }
+
+    this.init = function (oppiaine, stateParams) {
+      instance = new OppimaaraHelperImpl(oppiaine);
+      params = _.clone(stateParams);
+      return instance;
+    };
+
+    this.reset = function () {
+      console.log("reset");
+      instance = null;
+      params = {};
+    };
+
+    this.instance = function() {
+      return instance;
+    };
+
+    this.getBackState = function () {
+      return instance ? ['root.perusteprojekti.osaalue', params] :
+      ['root.perusteprojekti.osalistaus', {osanTyyppi: PerusopetusService.OPPIAINEET}];
+    };
+
+    this.save = function (model) {
+      if (!instance) {
+        return false;
+      }
+      model.$isNew = false;
+      var oppimaara = _.cloneDeep(model);
+      if (!_.isArray(instance.oppiaine.oppimaarat)) {
+        instance.oppiaine.oppimaarat = [];
+      }
+      instance.oppiaine.oppimaarat.push(oppimaara);
+      return instance.oppiaine;
+    };
+  })
+
   .directive('muokkausOppiaine', function() {
     return {
       templateUrl: 'views/directives/perusopetus/oppiaine.html',
@@ -44,12 +86,14 @@ angular.module('eperusteApp')
 
   .controller('OppiaineController', function ($scope, PerusopetusService, Kaanna,
       PerusteProjektiSivunavi, Oppiaineet, $timeout, $state, $stateParams, $q, YleinenData, tabHelper,
-      CloneHelper) {
+      CloneHelper, OppimaaraHelper) {
     $scope.editableModel = {};
     $scope.editEnabled = false;
     $scope.mappedVuosiluokat = [];
     $scope.yleisetosat = ['tehtava', 'osaalue'];
     $scope.activeTab =  parseInt($stateParams.tabId, 10);
+    $scope.isOppimaara = !!OppimaaraHelper.instance();
+    $scope.oppimaaraRequested = false;
     if (_.isNumber(tabHelper.changeInited)) {
       $scope.activeTab = tabHelper.changeInited;
       tabHelper.changeInited = false;
@@ -62,6 +106,10 @@ angular.module('eperusteApp')
         cloner.clone($scope.editableModel);
       },
       save: function () {
+        var koosteinenOppiaine = OppimaaraHelper.save($scope.editableModel);
+        if (koosteinenOppiaine) {
+          $scope.editableModel = koosteinenOppiaine;
+        }
         if (!$scope.editableModel.id) {
           Oppiaineet.save({
             perusteId: PerusopetusService.getPerusteId()
@@ -82,6 +130,7 @@ angular.module('eperusteApp')
       cancel: function () {
         cloner.restore($scope.editableModel);
         if ($scope.editableModel.$isNew) {
+          $scope.editableModel.$isNew = false;
           $timeout(function () {
             $state.go.apply($state, $scope.data.options.backState);
           });
@@ -94,13 +143,19 @@ angular.module('eperusteApp')
       validate: function () { return true; }
     };
 
+    $scope.$on('$destroy', function () {
+      if (!$scope.oppimaaraRequested) {
+        OppimaaraHelper.reset();
+      }
+    });
+
     $scope.data = {
       options: {
         title: function () { return $scope.editableModel.nimi; },
-        editTitle: 'muokkaa-oppiainetta',
-        newTitle: 'uusi-oppiaine',
+        editTitle: $scope.isOppimaara ? 'muokkaa-oppimaaraa' : 'muokkaa-oppiainetta',
+        newTitle: $scope.isOppimaara ? 'uusi-oppimaara' : 'uusi-oppiaine',
         backLabel: 'oppiaineet',
-        backState: ['root.perusteprojekti.osalistaus', {osanTyyppi: PerusopetusService.OPPIAINEET}],
+        backState: OppimaaraHelper.getBackState(),
         removeWholeLabel: 'poista-oppiaine',
         removeWholeConfirmationText: 'poistetaanko-oppiaine',
         removeWholeFn: function () {
@@ -111,8 +166,15 @@ angular.module('eperusteApp')
             label: 'lisaa-oppimaara',
             role: 'add',
             callback: function () {
+              OppimaaraHelper.init($scope.editableModel, $stateParams);
+              $scope.oppimaaraRequested = true;
+              $state.go('root.perusteprojekti.osaalue', {
+                osanTyyppi: PerusopetusService.OPPIAINEET,
+                osanId: 'uusi',
+                tabId: 0
+              });
             },
-            hide: '!model.koosteinen'
+            hide: '!editableModel.koosteinen'
           }
         ],
         addFieldCb: function (field) {
